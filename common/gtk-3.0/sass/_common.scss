@@ -1063,7 +1063,7 @@ actionbar > revealer >  box {
 //
 // Headerbars
 //
-$_header_radius: if($variant=='light' or $variant=='lighter', 4px, 3px);
+$_header_radius: if($variant=='light' or $variant=='lighter', 4px, 9px);
 
 headerbar,
 %titlebar {
@@ -1075,7 +1075,8 @@ headerbar,
   border-style: solid;
   border-color: opacify($header_border, 1);
 
-  color: $header_fg;
+  color: white;
+  text-shadow: 1px 1px 1px rgba(0, 0, 0, 0.7);
   background-color: opacify($header_bg, 1);
   box-shadow: inset 0  1px lighten($header_bg, 3%);
 
@@ -3304,10 +3305,11 @@ decoration {
   }
   // server-side decorations as used by mutter
   .ssd & {
-    border-radius: if($variant=='light' or $variant=='lighter', 4px 4px 0 0, 3px 3px 0 0);
-    box-shadow: 0 0 0 1px if($variant == 'dark' or $variant == 'darker', transparentize(black, 0.35), $_wm_border);
-
-    &.maximized { border-radius: 0; }
+    border-radius: if($variant=='light' or $variant=='lighter', 4px 4px 0 0, 8px 8px 0 0);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.1);
+  }
+  .ssd.maximized & {
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0);
   }
   .csd.popup & {
     border-radius: 2px;
