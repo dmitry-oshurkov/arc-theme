@@ -20,7 +20,7 @@ $darker_asset_suffix: if($variant=='darker', '-dark', $asset_suffix);
   -GtkWidget-text-handle-height: 20;
 
   -GtkDialog-button-spacing: 4;
-  -GtkDialog-action-area-border: 0;
+  -GtkDialog-action-area-border: 5;
 
   // We use the outline properties to signal the focus properties
   outline-color: gtkalpha(currentColor, 0.3);
