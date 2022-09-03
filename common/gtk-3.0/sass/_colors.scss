@@ -13,10 +13,8 @@ $selected_bg_color: #5294e2;
 $selected_borders_color: darken($selected_bg_color, 20%);
 $borders_color: #dbdbdb;
 
-$link_color: if($variant !='dark', darken($selected_bg_color,10%),
-                                     lighten($selected_bg_color,20%));
-$link_visited_color: if($variant !='dark', darken($selected_bg_color,20%),
-                                     lighten($selected_bg_color,10%));
+$link_color: if($variant !='dark', darken($selected_bg_color,10%), lighten($selected_bg_color,20%));
+$link_visited_color: if($variant !='dark', darken($selected_bg_color,20%), lighten($selected_bg_color,10%));
 
 $selection_mode_bg: if($transparency == 'true', transparentize($selected_bg_color, 0.05), $selected_bg_color);
 $selection_mode_fg: $selected_fg_color;
