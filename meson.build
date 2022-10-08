@@ -11,10 +11,10 @@ project(
 fs = import('fs')
 
 variant_name = {
-  'light' : (get_option('transparency') ? 'Arc' : 'Arc-solid'),
-  'darker' : (get_option('transparency') ? 'Arc-Darker' : 'Arc-Darker-solid'),
-  'dark' : (get_option('transparency') ? 'Arc-Dark' : 'Arc-Dark-solid'),
-  'lighter' : (get_option('transparency') ? 'Arc-Lighter' : 'Arc-Lighter-solid'),
+  'light' : (get_option('transparency') ? 'Sky-Arc' : 'Sky-Arc-solid'),
+  'darker' : (get_option('transparency') ? 'Sky-Arc-Darker' : 'Sky-Arc-Darker-solid'),
+  'dark' : (get_option('transparency') ? 'Sky-Arc-Dark' : 'Sky-Arc-Dark-solid'),
+  'lighter' : (get_option('transparency') ? 'Sky-Arc-Lighter' : 'Sky-Arc-Lighter-solid'),
 }
 
 prefix = get_option('prefix')
