@@ -37,6 +37,11 @@ $_popup_menu_shadow: if($variant!='dark', 0 1px 3px 2.1px rgba(0, 0, 0, 0.06), $
 
 $panel_transition_duration: 250ms;
 
+// Chroma key to flag when a background-color is always occluded, not visible.
+// This allows any box-shadow behind it to be rendered more efficiently by
+// omitting the middle rectangle.
+$invisible_occluded_bg_color: rgba(3,2,1,0);
+
 stage {
   @include fontsize($font-size);
   color: $fg_color;
@@ -60,6 +65,27 @@ stage {
   font-weight: normal;
 
   @extend %button;
+}
+
+.icon-button {
+  @extend %button;
+
+  border-radius: 99px;
+  border-style: solid;
+  border-width: 1px;
+  font-weight: bold;
+  padding: 4px;
+  min-height: 16px;
+
+  &.flat {
+    background-color: transparent;
+    border-color: transparent;
+  }
+
+  & > StIcon {
+    icon-size: 16px;
+    -st-icon-style: symbolic;
+  }
 }
 
 %button {
@@ -276,7 +302,10 @@ StScrollBar {
     border-color: if($variant!='dark', darken($osd_bg_color, 5%), darken($osd_bg_color, 8%));
 
     &:hover { background-color: lighten($osd_bg_color, 5%); }
-    &:focus { color: $selected_bg_color; }
+    &:focus {
+      color: $selected_bg_color;
+      box-shadow: none !important;
+    }
     &:active {
       color: $selected_fg_color;
       background-color: $selected_bg_color;
@@ -652,27 +681,6 @@ $_popup_submenu_border_color: if($variant!='dark', rgba(0, 0, 0, 0.1), rgba(0, 0
 // desktop ackground menu
 .background-menu { -boxpointer-gap: 4px; -arrow-rise: 0px; }
 
-// system status menu
-.aggregate-menu {
-  min-width: 23.5em;
-
-  // this is unneeded at the top-level in this menu, hide it
-  .popup-menu-ornament { width: 0 !important; }
-
-  // lock screen, shutdown, etc. buttons
-  .popup-menu-icon {
-    margin: 0 4px;
-    -st-icon-style: symbolic;
-  }
-
-  // account for ornaments in submenus with padding
-  .popup-sub-menu .popup-menu-item > :first-child {
-    // this value is hardcoded for visual effect
-    &:ltr { margin-left: 20px;}
-    &:rtl { margin-right: 20px;}
-  }
-}
-
 // right-click (and panel) app menu
 .app-menu {
   max-width: 27.25em;
@@ -934,7 +942,14 @@ $ws_dot_inactive: $ws_indicator_height / 6;
 
     &.screen-recording-indicator {
       box-shadow: inset 0 0 0 100px $error_color;
+    }
+    &.screen-sharing-indicator {
+      box-shadow: inset 0 0 0 100px $warning_color;
+      StBoxLayout { margin: 0 4px; }
+    }
 
+    &.screen-recording-indicator,
+    &.screen-sharing-indicator {
       StBoxLayout {
         spacing: 4px;
       }
@@ -952,6 +967,9 @@ $ws_dot_inactive: $ws_indicator_height / 6;
       &.screen-recording-indicator {
         box-shadow: inset 0 0 0 100px transparentize($error_color, 0.1);
       }
+      &.screen-sharing-indicator {
+        box-shadow: inset 0 0 0 100px transparentize($warning_color, 0.1);
+      }
     }
 
     @at-root %panel_button_active,
@@ -962,6 +980,9 @@ $ws_dot_inactive: $ws_indicator_height / 6;
 
       &.screen-recording-indicator {
         box-shadow: inset 0 0 0 100px transparentize($error_color, 0.15);
+      }
+      &.screen-sharing-indicator {
+        box-shadow: inset 0 0 0 100px transparentize($warning_color, 0.15);
       }
     }
 
@@ -1529,6 +1550,8 @@ $ws_dot_inactive: $ws_indicator_height / 6;
     margin: 0;
     &:hover { color: transparentize($fg_color, 0.3); }
     &:active { color: $selected_bg_color }
+
+    & StIcon { icon-size: 16px; }
   }
 
   // body
@@ -1555,6 +1578,8 @@ $ws_dot_inactive: $ws_indicator_height / 6;
 
   &:last-child:ltr { padding-right: 18px; }
   &:last-child:rtl { padding-left: 18px; }
+
+  & StIcon { icon-size: 16px; }
 }
 
 .message:active .message-media-control {
@@ -1647,6 +1672,7 @@ $window_close_button_padding: 0;
 .workspace-background {
   // keep in sync with BACKGROUND_CORNER_RADIUS_PIXELS in workspace.js
   border-radius: 30px;
+  background-color: $invisible_occluded_bg_color;
   box-shadow: 0 8px 16px 0 transparentize(black, 0.8);
 }
 
@@ -1658,70 +1684,6 @@ $window_close_button_padding: 0;
   -pie-border-color: $selected_bg_color;
   -pie-background-color: transparentize($selected_bg_color, 0.5);
 }
-
-//
-// Network Dialogs
-//
-.nm-dialog {
-  max-height: 34em;
-  min-height: 31em;
-  min-width: 32em;
-}
-
-.nm-dialog-content {
-  spacing: 20px;
-  padding: 10px;
-
-  @extend %modal_dialog_content_box;
-}
-.nm-dialog-header {
-  font-weight: bold;
-  @include fontsize($font-size * 1.2);
-}
-.nm-dialog-subheader { color: $insensitive_fg_color;}
-.nm-dialog-header-icon { icon-size: 32px; }
-.nm-dialog-header-hbox { spacing: 10px; }
-
-.nm-dialog-scroll-view {
-  border: 1px solid $borders_color;
-  padding: 0;
-  border-radius: 2px;
-  background-color: $base_color;
-}
-
-.nm-dialog-item {
-  @include fontsize($font-size);
-  border-bottom: 0px solid;
-  padding: 12px;
-  spacing: 0px;
-
-  &:selected {
-    background-color: $selected_bg_color;
-    border-radius: 0;
-    color: $selected_fg_color;
-  }
-  &:hover {
-    background-color: if($variant != 'dark', transparentize(black, 0.95), transparentize(white, 0.97));
-  }
-}
-
-.nm-dialog-icon { icon-size: 16px; }
-.nm-dialog-icons { spacing: .5em; }
-
-.no-networks-box { spacing: 12px; }
-.no-networks-label { color: $insensitive_fg_color; }
-
-.nm-dialog-airplane-box {
-  text-align: center;
-  spacing: 12px;
-}
-
-.nm-dialog-airplane-headline {
-  @include fontsize($font-size * 1.1);
-  font-weight: bold;
-  text-align: center;
-}
-.nm-dialog-airplane-text { color: $insensitive_fg_color; }
 
 //
 // Overview
@@ -2032,8 +1994,6 @@ $_dash_bottom_margin: 20px;
 }
 
 .page-navigation-hint {
-  width: 300px;
-
   &.dnd {
     background: rgba(255, 255, 255, 0.1);
   }
@@ -2056,9 +2016,17 @@ $_dash_bottom_margin: 20px;
 }
 
 .page-navigation-arrow {
-  margin: 6px;
-  width: 24px;
-  height: 24px;
+  &  > StIcon {
+    margin: 6px;
+    padding: 18px;
+    width: 24px;
+    height: 24px;
+    border-radius: 99px;
+  }
+
+  &:insensitive > StIcon { @include button(osd-insensitive);}
+  &:hover > StIcon { @include button(osd-hover);}
+  &:active > StIcon { @include button(osd-active);}
 }
 
 //
@@ -2189,8 +2157,8 @@ $_dash_bottom_margin: 20px;
 }
 .app-folder-dialog-container {
   padding: 12px;
-  width: 620px;
-  height: 620px;
+  width: 680px;
+  height: 680px;
 }
 
 .page-indicator {
@@ -2438,6 +2406,11 @@ $_dash_bottom_margin: 20px;
     &:active, &:checked { @include button(osd-active); }
   }
 
+  // keys that may be latched: ctrl/alt/shift
+  &:latched, &:latched:hover {
+    @include button(osd-active);
+  }
+
   &.enter-key {
     @include button(osd-active);
 
@@ -2519,11 +2492,12 @@ $_dash_bottom_margin: 20px;
 
 .candidate-page-button {
   padding: 4px;
+
+  & StIcon { icon-size: 1em; }
 }
 
 .candidate-page-button-previous { border-radius: 2px 0px 0px 2px; border-right-width: 0; }
 .candidate-page-button-next { border-radius: 0px 2px 2px 0px;  }
-.candidate-page-button-icon { icon-size: 1em; }
 
 //
 // Auth Dialogs & Screen Shield
@@ -2893,6 +2867,8 @@ $_dash_bottom_margin: 20px;
     color: $osd_fg_color;
     &:hover { color: lighten($osd_fg_color, 10%); }
     &:active { color: darken($osd_fg_color, 10%); }
+
+    & StIcon { icon-size: 12px; }
    }
 }
 
@@ -3056,6 +3032,9 @@ $_screenshot_ui_panel_padding: 15px;
     background-color: $selected_bg_color;
     color: $selected_fg_color;
   }
+  &:insensitive {
+    color: $osd_insensitive_fg_color;
+  }
 
   &:first-child:ltr {
     border-radius: 2px 0px 0px 2px;
@@ -3171,6 +3150,147 @@ $_screenshot_ui_panel_padding: 15px;
   padding: 5px 10px;
   text-align: center;
   -y-offset: 24px;
+}
+
+//
+// Quick settings
+//
+.quick-settings {
+  padding: 12px;
+  @extend %popup_menu;
+
+  .icon-button, .button {
+    padding: 7px;
+  }
+}
+
+.quick-settings-grid {
+  spacing-rows: 8px;
+  spacing-columns: 8px;
+}
+
+.quick-toggle {
+  border-radius: 3px;
+  min-width: 12em;
+  max-width: 12em;
+  min-height: 40px;
+
+  &:first-child { border-radius: 99px}
+
+  &:checked { @include button(default); }
+
+  & > StBoxLayout { spacing: 4px; }
+
+  /* Move padding into the box; this is to allow menu arrows
+     to extend to the border */
+  &.button { padding: 0; }
+  & > StBoxLayout { padding: 0 8px; }
+  &:ltr > StBoxLayout { padding-left: 10px; }
+  &:rtl > StBoxLayout { padding-right: 10px; }
+
+  .quick-toggle-label { font-weight: normal; }
+  .quick-toggle-icon, .quick-toggle-arrow { icon-size: 16px; }
+}
+
+.quick-menu-toggle {
+  &:ltr > StBoxLayout { padding-right: 0; }
+  &:rtl > StBoxLayout { padding-left: 0; }
+
+  & .quick-toggle-arrow {
+    background-color: transparentize($fg_color, 0.9);
+    padding: 4px 7px;
+
+    &:ltr { border-radius: 0 3px 3px 0; }
+    &:rtl { border-radius: 3px 0 0 3px; }
+  }
+
+  &:checked .quick-toggle-arrow {
+    background-color: transparentize($selected_fg_color, 0.9);
+  }
+}
+
+.quick-slider {
+    & > StBoxLayout { spacing: 4px; }
+
+  .slider-bin {
+    &:focus {@include button(focus);}
+    min-height: 16px; // slider size
+    padding: 4px;
+    border-radius: 99px;
+  }
+  .quick-toggle-icon {
+    icon-size: 16px;
+
+    &:ltr { margin-left: 4px; }
+    &:rtl { margin-right: 4px; }
+  }
+}
+
+.quick-toggle-menu {
+  background-color: $shell_popup_menu_background_color;
+  border-color: $borders_color;
+  border-radius: 3px;
+  padding: 8px;
+  margin: 8px 16px 0;
+
+  .popup-menu-item {
+    border-radius: 2px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
+  .popup-menu-item > StIcon { -st-icon-style: symbolic; }
+
+  & .header {
+    spacing-rows: 2px;
+    spacing-columns: 8px;
+    padding-bottom: 8px;
+
+    & .icon {
+      icon-size: 16px;
+      border-radius: 999px;
+      padding: 6px;
+      border: 1px solid $button_border;
+      background-color: $button_bg;
+
+      &.active {
+        background-color: $selected_bg_color;
+        color: $selected_fg_color;
+        border: 1px solid if($variant!='dark', $selected_bg_color, $button_border);
+      }
+    }
+
+    & .title {
+      @include fontsize($font-size * 1.4);
+      font-weight: 800;
+    }
+
+    & .subtitle {
+      @include fontsize($font-size);
+      font-weight: 800;
+    }
+  }
+}
+
+.quick-toggle-menu-container {
+}
+
+.quick-settings-system-item {
+  & > StBoxLayout { spacing: 8px; }
+
+  & .power-item {
+    min-height: 0;
+    min-width: 0;
+
+    &:insensitive {
+      @include button(normal);
+      background-color: transparent;
+    }
+  }
+}
+
+.nm-network-item {
+  .wireless-secure-icon { icon-size: 8px; }
 }
 
 //
